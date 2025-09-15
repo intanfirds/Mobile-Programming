@@ -6,19 +6,36 @@ void main(List<String> arguments) {
   // print('Hello world: ${pertemuan4.calculate()}!');
 
   // Belajar Fixed List
-  var list = List<int>.filled(5, 0);
+  // var list = List<int>.filled(5, 0);
 
-  list[0] = 10;
-  list[1] = 20;
-  list[2] = 13;
-  list[3] = 33;
-  list[4] = 23;
-  print("Data dalam list = $list");
+  // list[0] = 10;
+  // list[1] = 20;
+  // list[2] = 13;
+  // list[3] = 33;
+  // list[4] = 23;
+  // print("Data dalam list = $list");
+
+  // for (var i = 0; i <= 4; i++) {
+  //   stdout.write("Data List ke-$i : ");
+  //   var input = stdin.readLineSync();
+  //   list[i] = int.parse((input == null || input.isEmpty) ? "0" : input);
+  // }
+  // print("Data dalam list = $list");
+
+  var grow = [];
+  // grow.add(20);
+  // grow.add(40);
+  // grow.add(55);
+  // grow.add(60);
+  // grow.remove(55);
+  // grow.add(10);
+
+  // print("Data dalam list = $grow");
 
   for (var i = 0; i <= 4; i++) {
     stdout.write("Data List ke-$i : ");
     var input = stdin.readLineSync();
-    list[i] = int.parse((input == null || input.isEmpty) ? "0" : input);
+    grow.add(int.parse((input == null || input.isEmpty) ? "0" : input));
   }
-  print("Data dalam list = $list");
+  print("Data dalam list = $grow");
 }

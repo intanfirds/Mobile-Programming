@@ -22,7 +22,7 @@ void main(List<String> arguments) {
   // }
   // print("Data dalam list = $list");
 
-  var grow = [];
+  // var grow = [];
   // grow.add(20);
   // grow.add(40);
   // grow.add(55);
@@ -32,10 +32,21 @@ void main(List<String> arguments) {
 
   // print("Data dalam list = $grow");
 
+  // for (var i = 0; i <= 4; i++) {
+  //   stdout.write("Data List ke-$i : ");
+  //   var input = stdin.readLineSync();
+  //   grow.add(int.parse((input == null || input.isEmpty) ? "0" : input));
+  // }
+  // print("Data dalam list = $grow");
+
+  var grow = [];
   for (var i = 0; i <= 4; i++) {
-    stdout.write("Data List ke-$i : ");
+    stdout.write("Masukkan list ke-$i : ");
     var input = stdin.readLineSync();
-    grow.add(int.parse((input == null || input.isEmpty) ? "0" : input));
+    if (input != null) {
+      grow.add(input);
+      print("Data data index ke: $i ${grow[i]}");
+    }
   }
   print("Data dalam list = $grow");
 }

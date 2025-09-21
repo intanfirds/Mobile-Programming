@@ -78,11 +78,17 @@ void main(List<String> arguments) {
   // print("Biodata sata $bio");
   // print("Nama saya ${bio.nama}");
 
-  // Set
-  var angka = <int>{1, 2, 3, 3, 4, 5}; //double tetap 1 data
-  print("Datanya adalah : ${angka.elementAt(1)}"); //memanggil data tertentu
+  tampil("Intan", 20, "Malang");
+  tampil("Luqman", 21);
+}
 
-  var angka2 = <int>{4, 5, 6, 7, 8};
-  print("Data Union adalah = ${angka2.union(angka2)}");
-  print("Data intersection adalah = ${angka.intersection(angka2)}");
+// Function Parameter
+void tampil(String nama, int umur, [String? alamat]) {
+  print("Nama : $nama");
+  print("Umur : $umur");
+  if (alamat != null) {
+    print("Alamat : $alamat");
+  } else {
+    print("Alamat : -");
+  }
 }

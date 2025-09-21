@@ -70,11 +70,19 @@ void main(List<String> arguments) {
   // print("Biodata mahasiswa dengan nama = ${biodata['nama']}");
 
   // Record (Mengumpulkan data dalam satu ringkasan)
-  var mahasiswa = ("Luqman", 40, true);
-  print("Ini adalah data Pak Luqman $mahasiswa");
-  print("Mahasiswa = ${mahasiswa.$1}");
+  // var mahasiswa = ("Luqman", 40, true);
+  // print("Ini adalah data Pak Luqman $mahasiswa");
+  // print("Mahasiswa = ${mahasiswa.$1}");
 
-  var bio = (nama: "Intan", umur: 20, gender: true);
-  print("Biodata sata $bio");
-  print("Nama saya ${bio.nama}");
+  // var bio = (nama: "Intan", umur: 20, gender: true);
+  // print("Biodata sata $bio");
+  // print("Nama saya ${bio.nama}");
+
+  // Set
+  var angka = <int>{1, 2, 3, 3, 4, 5}; //double tetap 1 data
+  print("Datanya adalah : ${angka.elementAt(1)}"); //memanggil data tertentu
+
+  var angka2 = <int>{4, 5, 6, 7, 8};
+  print("Data Union adalah = ${angka2.union(angka2)}");
+  print("Data intersection adalah = ${angka.intersection(angka2)}");
 }

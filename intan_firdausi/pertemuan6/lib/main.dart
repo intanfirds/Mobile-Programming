@@ -1,155 +1,185 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+// Import halaman-halaman yang dibutuhkan
+import 'profile_page.dart';
+import 'counter_page.dart';
 
 void main() {
-  runApp(const sib3a());
+  runApp(const MyApp());
 }
 
-class sib3a extends StatelessWidget {
-  const sib3a({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      home: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.account_circle, size: 20, color: Colors.white),
-              Text(
-                'Flutter Demo',
-                style: TextStyle(fontSize: 15, color: Colors.white),
-              ),
-              Text(
-                'Punya Inteun',
-                style: TextStyle(fontSize: 15, color: Colors.white70),
-              ),
-              FlutterLogo(
-                size: 30,
-                style: FlutterLogoStyle.horizontal,
-                textColor: Colors.white,
-              ),
-              Image.asset(
-                'assets/images/Logo Polinema.png',
-                width: 30,
-                height: 30,
-              ),
-            ],
-          ),
-          backgroundColor: Colors.blueAccent,
-          // leading: const Icon(Icons.menu),
-          actions: const [Icon(Icons.settings), Icon(Icons.search)],
+      title: 'My Profile & Counter App',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.light,
         ),
-        body: Container(
-          margin: const EdgeInsets.all(10),
-          padding: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          //color: const Color.fromARGB(255, 135, 114, 38),
-          height: 350,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            //color: Colors.limeAccent,
-            border: Border.all(color: Colors.blueAccent, width: 5),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.grey,
-                blurRadius: 5,
-                offset: Offset(2, 2),
-              ),
-            ],
+        useMaterial3: true,
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
+      home: const MainNavigation(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const ProfilePage(),
+    const CounterPage(),
+  ];
+
+  void _navigateToPage(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    // Tutup drawer setelah memilih menu
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _currentIndex == 0 ? 'Profil Mahasiswa' : 'Counter App',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const Text('You have pushed the button this many times:'),
-              const SizedBox(height: 10),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        // Otomatis menambahkan icon menu untuk drawer
+        automaticallyImplyLeading: true,
+      ),
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Counter',
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            // Drawer Header
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.deepPurple.shade400,
+                    Colors.purple.shade300,
+                  ],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star, color: Colors.amber),
-                  Icon(Icons.star_half, color: Colors.amber),
-                  Icon(Icons.star_border, color: Colors.amber),
+                  const CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'My Profile App',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Navigation Menu',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
                 ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // add
-                },
-                child: const Text('Press Me', style: TextStyle(fontSize: 16)),
-              ),
-              TextButton(
-                onPressed: () {
-                  // add your logic here
-                  print('Text Button Pressed');
-                },
-                child: const Text(
-                  'Text Button',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                  // add your logic here
-                  print('Outlined Button Pressed');
-                },
-                child: const Text(
-                  'Outlined Button',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  // add your logic here
-                  print('Icon Button Pressed');
-                },
-                icon: const Icon(Icons.favorite, color: Colors.red),
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          tooltip: 'ini tombol',
-          child: const Icon(Icons.add),
-        ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: const <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Text(
-                  'Drawer Header',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
-              ),
-              ListTile(leading: Icon(Icons.message), title: Text('Messages')),
-              ListTile(
-                leading: Icon(Icons.account_circle),
-                title: Text('Profile'),
-              ),
-              ListTile(leading: Icon(Icons.settings), title: Text('Settings')),
-            ],
-          ),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.business),
-              label: 'Business',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.school), label: 'School'),
+
+            // Menu untuk navigasi ke halaman Profile
+            ListTile(
+              leading: Icon(
+                Icons.person,
+                color: _currentIndex == 0
+                    ? Colors.deepPurple
+                    : Colors.grey.shade700,
+              ),
+              title: Text(
+                'Halaman Profil',
+                style: GoogleFonts.poppins(
+                  fontWeight:
+                      _currentIndex == 0 ? FontWeight.bold : FontWeight.normal,
+                  color: _currentIndex == 0 ? Colors.deepPurple : Colors.black,
+                ),
+              ),
+              trailing: _currentIndex == 0
+                  ? const Icon(Icons.check, color: Colors.deepPurple)
+                  : null,
+              onTap: () => _navigateToPage(0),
+            ),
+
+            // Menu untuk navigasi ke halaman Counter
+            ListTile(
+              leading: Icon(
+                Icons.add_chart,
+                color: _currentIndex == 1
+                    ? Colors.deepPurple
+                    : Colors.grey.shade700,
+              ),
+              title: Text(
+                'Halaman Counter',
+                style: GoogleFonts.poppins(
+                  fontWeight:
+                      _currentIndex == 1 ? FontWeight.bold : FontWeight.normal,
+                  color: _currentIndex == 1 ? Colors.deepPurple : Colors.black,
+                ),
+              ),
+              trailing: _currentIndex == 1
+                  ? const Icon(Icons.check, color: Colors.deepPurple)
+                  : null,
+              onTap: () => _navigateToPage(1),
+            ),
           ],
         ),
       ),

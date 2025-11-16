@@ -1,45 +1,210 @@
-import 'package:encrypt/encrypt.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+//--- KONFIGURASI API ---
+class ApiConfig {
+  static const String baseUrl = 'https://85q2q.wiremockapi.cloud';
+
+  static const usersEndpoint = '/users';
+  static Map<String, String> headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+}
+
+//--- MAIN APP ---
 void main() {
-  // 1. Tentukan Key dan IV (Initialization Vector)
-  // PENTING: Key dan IV ini HANYA CONTOH. Jangan gunakan di produksi.
-  // Key harus 32 karakter untuk AES-256
-  final key = Key.fromUtf8('0123456789ABCDEF0123456789ABCDEF');
-  // IV harus 16 karakter untuk AES CBC
-  final iv = IV.fromUtf8('0123456789ABCDEF');
+  runApp(WireMockApp());
+}
 
-  // 2. Buat instance Encrypter
-  final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
+class WireMockApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WireMock Cloud Demo',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: UserPage(),
+    );
+  }
+}
 
-  // 3. Data rahasia (Plain Text)
-  final plainText = 'Ini rahasia besar saya';
-  print('Original text: $plainText');
+//--- UI PAGE ---
+class UserPage extends StatefulWidget {
+  @override
+  _UserPageState createState() => _UserPageState();
+}
 
-  // 4. Enkripsi
-  final encrypted = encrypter.encrypt(plainText, iv: iv);
-  print('Encrypted (base64): ${encrypted.base64}');
+class _UserPageState extends State<UserPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
-  // 5. Dekripsi
-  final decrypted = encrypter.decrypt(encrypted, iv: iv);
-  print('Decrypted text: $decrypted');
+  List<dynamic> _users = []; // State untuk daftar user
+  bool _isLoading = false; // State untuk loading
+  String? _errorMessage; // State untuk error GET
+  String? _postMessage; // State untuk pesan sukses/gagal POST
 
-  print('\n--- Contoh Enkripsi JSON ---');
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers(); // Ambil data saat halaman dibuka
+  }
 
-  // 6. Enkripsi data JSON
-  final data = {'user': 'luqman', 'token': 'abc123xyz'};
-  final jsonString = jsonEncode(data); // Ubah Map ke String
-  print('Original JSON: $jsonString');
+  /// GET users
+  Future<void> fetchUsers() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-  // Enkripsi String JSON
-  final encryptedJson = encrypter.encrypt(jsonString, iv: iv);
-  print('Encrypted JSON: ${encryptedJson.base64}');
+    final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.usersEndpoint}');
+    try {
+      final response = await http
+          .get(url, headers: ApiConfig.headers)
+          .timeout(const Duration(seconds: 10));
 
-  // Dekripsi String JSON
-  final decryptedJson = encrypter.decrypt(encryptedJson, iv: iv);
-  print('Decrypted JSON: $decryptedJson');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() => _users = data);
+      } else {
+        setState(() => _errorMessage = 'Error ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
-  // Ubah kembali ke Map
-  final decryptedMap = jsonDecode(decryptedJson);
-  print('Decrypted Map (user): ${decryptedMap['user']}');
+  /// POST new user
+  Future<void> addUser() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+
+    if (name.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nama & Email tidak boleh kosong')),
+      );
+      return;
+    }
+
+    setState(() => _postMessage = null); // Bersihkan pesan lama
+
+    final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.usersEndpoint}');
+    final body = jsonEncode({'name': name, 'email': email});
+
+    try {
+      final response = await http
+          .post(url, headers: ApiConfig.headers, body: body)
+          .timeout(const Duration(seconds: 10));
+
+      final Map<String, dynamic> result = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          _postMessage = result['message'] ?? 'User berhasil ditambahkan!';
+        });
+        _nameController.clear();
+        _emailController.clear();
+        fetchUsers(); // Refresh list user
+      } else {
+        setState(() {
+          _postMessage = 'Gagal menambah user (${response.statusCode})';
+        });
+      }
+    } catch (e) {
+      setState(() => _postMessage = 'Error: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('WireMock Cloud Users')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // --- Input form ---
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Nama',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah User'),
+              onPressed: addUser,
+            ),
+            const SizedBox(height: 20),
+
+            // --- Pesan Hasil POST ---
+            if (_postMessage != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _postMessage!,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            const Divider(),
+            const Text(
+              'Daftar User',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const Divider(),
+
+            // --- Daftar User (Hasil GET) ---
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _errorMessage != null
+                  ? Center(child: Text(_errorMessage!))
+                  : _users.isEmpty
+                  ? const Center(child: Text('Belum ada data.'))
+                  : ListView.builder(
+                      itemCount: _users.length,
+                      itemBuilder: (context, index) {
+                        final user = _users[index];
+                        return ListTile(
+                          leading: CircleAvatar(child: Text('${user['id']}')),
+                          title: Text(user['name']),
+                          subtitle: Text(user['email']),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: fetchUsers,
+        tooltip: 'Refresh',
+        child: const Icon(Icons.refresh),
+      ),
+    );
+  }
 }
